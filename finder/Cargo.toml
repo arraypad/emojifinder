@@ -1,0 +1,18 @@
+[package]
+name = "emojifinder"
+description = "The terminal based Emoji finder you've always needed"
+homepage = "https://github.com/arraypad/emojifinder"
+repository = "https://github.com/arraypad/emojifinder"
+version = "0.1.0"
+authors = ["Arpad Ray <arraypad@gmail.com>"]
+edition = "2018"
+readme = "README.md"
+license = "MIT"
+keywords = ["terminal", "cli", "emoji", "search", "find", "fuzzy"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+env_logger = "0.7.1"
+failure = "0.1.6"
+log = "0.4.0"
+emojifinder-index = { path = "../index" }

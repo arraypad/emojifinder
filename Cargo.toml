@@ -1,0 +1,3 @@
+[workspace]
+members = ["finder", "index", "indexer"]
+default-members = ["finder", "index"]
