@@ -1,0 +1,6 @@
+[submodule "builder/data/noto-emoji"]
+	path = builder/data/noto-emoji
+	url = https://github.com/googlefonts/noto-emoji.git
+[submodule "builder/data/cldr"]
+	path = builder/data/cldr
+	url = git@github.com:unicode-org/cldr.git
