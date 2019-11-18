@@ -1,2 +1,2 @@
 fmt:
-	rustfmt src/*.rs
+	rustfmt */src/**.rs
