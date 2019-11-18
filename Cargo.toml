@@ -1,3 +1,3 @@
 [workspace]
-members = ["finder", "index", "builder"]
-default-members = ["finder", "index"]
+members = ["finder", "core", "builder"]
+default-members = ["finder", "core"]

@@ -1,5 +1,5 @@
 [package]
-name = "emojifinder-index"
+name = "emojifinder-core"
 version = "0.1.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2018"
@@ -7,3 +7,5 @@ license = "MIT"
 
 [dependencies]
 failure = "0.1.6"
+serde = "1.0.102"
+serde_derive = "1.0.102"
