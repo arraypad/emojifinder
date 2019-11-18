@@ -1,4 +1,4 @@
-use failure::{Backtrace, Context, Fail};
+use failure::{Context, Fail};
 use std::fmt;
 
 #[derive(Debug, Fail)]
@@ -26,9 +26,7 @@ pub enum ErrorKind {
 impl fmt::Display for ErrorKind {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match *self {
-			ErrorKind::Parse(ref msg) => {
-				write!(f, "Parse error: {}", msg)
-			},
+			ErrorKind::Parse(ref msg) => write!(f, "Parse error: {}", msg),
 		}
 	}
 }

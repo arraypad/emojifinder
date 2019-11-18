@@ -7,5 +7,7 @@ license = "MIT"
 
 [dependencies]
 failure = "0.1.6"
+lz4 = "1.23.1"
+rmp-serde = "0.14.0"
 serde = "1.0.102"
 serde_derive = "1.0.102"

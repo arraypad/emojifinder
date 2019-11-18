@@ -1,8 +1,8 @@
-use emojifinder_index::Emoji;
+use emojifinder_core::{Emoji, Index};
 
 fn main() {
 	env_logger::init();
 
-	let e = Emoji::default();
-	println!("Hello, world! {:?}", e);
+	let index = Index::from_bytes(include_bytes!("../data/index.bin"));
+	println!("Hello, world! {:?}", index);
 }
