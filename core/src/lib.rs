@@ -42,4 +42,17 @@ impl Index {
 
 		Ok(std::fs::write(path, compressed)?)
 	}
+
+	pub fn search<S: AsRef<str>, T: AsRef<str>>(_lang: S, _query: T) -> Option<usize> {
+		None
+	}
+
+	pub fn items<'a, S: AsRef<str>>(&'a self, lang: S) -> Vec<&'a str> {
+		self.emojis
+			.iter()
+			.map(|e| match e.name.get(lang.as_ref()) {
+				Some(name) => name.as_str(),
+				None => "Unknown",
+			}).collect()
+	}
 }
