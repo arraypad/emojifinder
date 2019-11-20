@@ -1,9 +1,13 @@
 use image::{DynamicImage, FilterType};
 use tui::buffer::Buffer;
-use tui::layout::{Alignment, Rect};
-use tui::style::Style;
-use tui::symbols::block;
-use tui::widgets::{Block, Text, Widget};
+use tui::layout::Rect;
+use tui::style::{Color, Style};
+use tui::widgets::{Block, Widget};
+
+pub enum ColorMode {
+	Luma,
+	Rgb,
+}
 
 pub struct Viewer<'a> {
 	/// A block to wrap the widget in
@@ -12,6 +16,8 @@ pub struct Viewer<'a> {
 	style: Style,
 	/// SVG content
 	svg: Option<String>,
+	/// Color mode
+	color_mode: ColorMode,
 }
 
 impl<'a> Viewer<'a> {
@@ -20,11 +26,17 @@ impl<'a> Viewer<'a> {
 			block: None,
 			style: Default::default(),
 			svg,
+			color_mode: ColorMode::Luma,
 		}
 	}
 
 	pub fn block(mut self, block: Block<'a>) -> Viewer<'a> {
 		self.block = Some(block);
+		self
+	}
+
+	pub fn color_mode(mut self, color_mode: ColorMode) -> Viewer<'a> {
+		self.color_mode = color_mode;
 		self
 	}
 
@@ -78,20 +90,34 @@ impl<'a> Widget for Viewer<'a> {
 		for y in oy..(oy + img.height() as u16) {
 			for x in ox..(ox + img.width() as u16) {
 				let p = img.get_pixel((x - ox) as u32, (y - oy) as u32);
-				let pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
-				let luma = (pf[0] * 0.3 + pf[1] * 0.59 + pf[2] * 0.11) * pf[3];
-				let luma_u8 = (5.0 * luma) as u8;
-				if luma_u8 == 0 {
-					continue;
-				}
 
-				buf.get_mut(area.left() + x, area.top() + y)
-					.set_char(match luma_u8 {
-						1 => '\u{2591}',
-						2 => '\u{2592}',
-						3 => '\u{2593}',
-						_ => '\u{2588}',
-					});
+				let mut cell = buf.get_mut(area.left() + x, area.top() + y);
+
+				match self.color_mode {
+					ColorMode::Luma => {
+						let pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
+						let luma = (pf[0] * 0.3 + pf[1] * 0.59 + pf[2] * 0.11) * pf[3];
+						let luma_u8 = (5.0 * luma) as u8;
+						if luma_u8 == 0 {
+							continue;
+						}
+
+						cell.set_char(match luma_u8 {
+							1 => '\u{2591}',
+							2 => '\u{2592}',
+							3 => '\u{2593}',
+							_ => '\u{2588}',
+						});
+					}
+					ColorMode::Rgb => {
+						let pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
+						cell.set_char('\u{2588}').set_fg(Color::Rgb(
+							(255.0 * pf[0] * pf[3]) as u8,
+							(255.0 * pf[1] * pf[3]) as u8,
+							(255.0 * pf[2] * pf[3]) as u8,
+						));
+					}
+				}
 			}
 		}
 	}

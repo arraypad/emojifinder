@@ -13,7 +13,7 @@ use tui::Terminal;
 
 use emojifinder_core::{Emoji, Index};
 use util::event::{Event, Events};
-use viewer::Viewer;
+use viewer::{ColorMode, Viewer};
 
 fn main() {
 	env_logger::init();
@@ -76,6 +76,7 @@ fn run() -> Result<(), Error> {
 				.split(f.size());
 
 			Viewer::new(svg)
+				.color_mode(ColorMode::Rgb)
 				.block(Block::default().borders(Borders::ALL).title("Preview: "))
 				.render(&mut f, chunks[0]);
 
