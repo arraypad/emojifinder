@@ -25,6 +25,37 @@ impl Emoji {
 			None => "Unknown",
 		}
 	}
+
+	pub fn update_rank<S: AsRef<str>, T: AsRef<str>>(&mut self, lang: S, query: T) {
+		self.rank = 0.0;
+
+		for slice in query.as_ref().split_whitespace() {
+			if let Some(name) = self.name.get(lang.as_ref()) {
+				self.rank += rank_similarity(slice, name);
+			}
+
+			if let Some(keywords) = self.keywords.get(lang.as_ref()) {
+				for keyword in keywords {
+					self.rank += rank_similarity(slice, keyword);
+				}
+			}
+		}
+	}
+}
+
+fn rank_similarity<S: AsRef<str>, T: AsRef<str>>(query: S, subject: T) -> f32 {
+	let query = query.as_ref();
+	let subject = subject.as_ref();
+
+	if query == subject {
+		return 5.0;
+	}
+
+	if subject.starts_with(query) {
+		return 3.0;
+	}
+
+	trigram::similarity(query, subject)
 }
 
 #[derive(Default, Debug, Serialize, Deserialize)]
@@ -62,9 +93,8 @@ impl Index {
 	}
 
 	pub fn search<S: AsRef<str>, T: AsRef<str>>(&mut self, lang: S, query: T) {
-		let lang = lang.as_ref();
 		for ref mut emoji in &mut self.emojis {
-			emoji.rank = trigram::similarity(query.as_ref(), emoji.name(lang));
+			emoji.update_rank(&lang, &query);
 		}
 
 		self.emojis
