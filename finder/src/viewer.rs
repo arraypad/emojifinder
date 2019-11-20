@@ -62,6 +62,13 @@ impl<'a> Widget for Viewer<'a> {
 
 		self.background(area, buf, self.style.bg);
 
+		let bg_color = match self.style.bg {
+			Color::Black => vec![0f32, 0f32, 0f32],
+			Color::White => vec![1f32, 1f32, 1f32],
+			Color::Rgb(r, g, b) => vec![r as f32 / 255f32, g as f32 / 255f32, b as f32 / 255f32],
+			_ => vec![0f32, 0f32, 0f32],
+		};
+
 		let svg = match self.svg {
 			None => return,
 			Some(ref svg) => nsvg::parse_str(svg, nsvg::Units::Pixel, 96.0).unwrap(),
@@ -91,11 +98,18 @@ impl<'a> Widget for Viewer<'a> {
 			for x in ox..(ox + img.width() as u16) {
 				let p = img.get_pixel((x - ox) as u32, (y - oy) as u32);
 
-				let mut cell = buf.get_mut(area.left() + x, area.top() + y);
+				// convert u8 to floats in range 0-1
+				let mut pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
+
+				// composite onto background
+				pf[0] = pf[0] * pf[3] + bg_color[0] * (1f32 - pf[3]);
+				pf[1] = pf[1] * pf[3] + bg_color[1] * (1f32 - pf[3]);
+				pf[2] = pf[2] * pf[3] + bg_color[2] * (1f32 - pf[3]);
+
+				let cell = buf.get_mut(area.left() + x, area.top() + y);
 
 				match self.color_mode {
 					ColorMode::Luma => {
-						let pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
 						let luma = (pf[0] * 0.3 + pf[1] * 0.59 + pf[2] * 0.11) * pf[3];
 						let luma_u8 = (5.0 * luma) as u8;
 						if luma_u8 == 0 {
@@ -110,11 +124,10 @@ impl<'a> Widget for Viewer<'a> {
 						});
 					}
 					ColorMode::Rgb => {
-						let pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
 						cell.set_char('\u{2588}').set_fg(Color::Rgb(
-							(255.0 * pf[0] * pf[3]) as u8,
-							(255.0 * pf[1] * pf[3]) as u8,
-							(255.0 * pf[2] * pf[3]) as u8,
+							(255.0 * pf[0]) as u8,
+							(255.0 * pf[1]) as u8,
+							(255.0 * pf[2]) as u8,
 						));
 					}
 				}

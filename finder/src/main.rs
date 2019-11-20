@@ -1,6 +1,7 @@
 mod util;
 mod viewer;
 
+use clipboard::{ClipboardContext, ClipboardProvider};
 use failure::Error;
 use termion::event::Key;
 use termion::raw::IntoRawMode;
@@ -11,7 +12,7 @@ use tui::style::{Color, Modifier, Style};
 use tui::widgets::{Block, Borders, SelectableList, Widget};
 use tui::Terminal;
 
-use emojifinder_core::{Emoji, Index};
+use emojifinder_core::{error::Error as EmojiError, Emoji, Index};
 use util::event::{Event, Events};
 use viewer::{ColorMode, Viewer};
 
@@ -29,7 +30,7 @@ struct App {
 	pub index: Index,
 	pub selected: usize,
 	pub query: String,
-	pub query_changed: bool,
+	pub flash: bool,
 }
 
 impl App {
@@ -38,7 +39,7 @@ impl App {
 			index: Index::from_bytes(include_bytes!("../data/index.bin"))?,
 			selected: 0,
 			query: String::new(),
-			query_changed: false,
+			flash: false,
 		})
 	}
 }
@@ -68,6 +69,13 @@ fn run() -> Result<(), Error> {
 
 		let svg = app.index.emojis[app.selected].svg.clone();
 
+		let style = if app.flash {
+			app.flash = false;
+			Style::default().bg(Color::White).fg(Color::Black)
+		} else {
+			Style::default().bg(Color::Black).fg(Color::White)
+		};
+
 		terminal.draw(|mut f| {
 			let chunks = Layout::default()
 				.direction(Direction::Vertical)
@@ -77,24 +85,29 @@ fn run() -> Result<(), Error> {
 
 			Viewer::new(Some(svg))
 				.color_mode(ColorMode::Rgb)
-				.block(Block::default().borders(Borders::ALL).title("Preview: "))
+				.block(
+					Block::default()
+						.borders(Borders::ALL)
+						.title("Preview: ")
+						.style(style),
+				)
+				.style(style)
 				.render(&mut f, chunks[0]);
 
 			SelectableList::default()
 				.block(
 					Block::default()
 						.borders(Borders::ALL)
-						.title(prompt.as_str()),
+						.title(prompt.as_str())
+						.style(style),
 				)
 				.items(items.as_slice())
 				.select(Some(app.selected))
-				.style(Style::default().fg(Color::White))
+				.style(style)
 				.highlight_style(Style::default().modifier(Modifier::ITALIC))
 				.highlight_symbol(">")
 				.render(&mut f, chunks[1]);
 		})?;
-
-		app.query_changed = false;
 
 		match events.next()? {
 			Event::Input(input) => match input {
@@ -117,18 +130,41 @@ fn run() -> Result<(), Error> {
 				}
 				Key::Backspace => {
 					app.query.truncate(app.query.len() - 1);
-					app.query_changed = true;
 					app.selected = 0;
 				}
 				Key::Char(c) => {
-					app.query += c.to_string().as_str();
-					app.query_changed = true;
-					app.selected = 0;
+					if c == '\n' {
+						app.flash = true;
+
+						let emoji: &Emoji = &app.index.emojis[app.selected];
+
+						let mut clip: ClipboardContext = match ClipboardProvider::new() {
+							Ok(clip) => clip,
+							Err(e) => {
+								return Err(EmojiError::clipboard(format!(
+									"failed constructing provider: {:?}",
+									e
+								))
+								.into())
+							}
+						};
+
+						if let Err(e) = clip.set_contents(emoji.value.clone()) {
+							return Err(EmojiError::clipboard(format!(
+								"failed writing to clipboard: {:?}",
+								e
+							))
+							.into());
+						}
+					} else {
+						app.query += c.to_string().as_str();
+						app.selected = 0;
+					}
 				}
 				_ => {}
 			},
 			Event::Tick => {
-				// unused - could be used for non-input updates later
+				// currently only used to reset flash and handle resizing
 			}
 		}
 	}

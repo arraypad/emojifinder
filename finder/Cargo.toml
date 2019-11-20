@@ -12,6 +12,7 @@ keywords = ["terminal", "cli", "emoji", "search", "find", "fuzzy"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+clipboard = "0.5.0"
 emojifinder-core = { path = "../core" }
 env_logger = "0.7.1"
 failure = "0.1.6"
