@@ -44,17 +44,21 @@ fn run() -> Result<(), Error> {
 			.map(|p| u32::from_str_radix(p, 16))
 			.collect();
 
-		let chars: Option<Vec<char>> = code_points?
+		let mut chars: Option<Vec<char>> = code_points?
 			.iter()
 			.map(|p| std::char::from_u32(*p))
 			.collect();
 
-		if let Some(chars) = chars {
-			let value: String = chars.iter().collect();
+		if let Some(ref mut chars) = chars {
+			if chars.len() > 1 {
+				// skip emojis with modifiers for now
+				continue;
+			}
+
+			let value = chars[0].to_string();
 			map.insert(
 				value.clone(),
 				Emoji {
-					chars: chars,
 					value: value,
 					name: HashMap::new(),
 					keywords: HashMap::new(),
@@ -62,9 +66,7 @@ fn run() -> Result<(), Error> {
 				},
 			);
 		} else {
-			return Err(
-				EmojiError::parse(format!("Invalid char: {:?}", code_points_str)).into(),
-			);
+			return Err(EmojiError::parse(format!("Invalid char: {:?}", code_points_str)).into());
 		}
 	}
 

@@ -9,7 +9,6 @@ use std::path::Path;
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Emoji {
-	pub chars: Vec<char>,
 	pub value: String,
 	pub name: HashMap<String, String>,
 	pub keywords: HashMap<String, Vec<String>>,
@@ -47,12 +46,16 @@ impl Index {
 		None
 	}
 
-	pub fn items<'a, S: AsRef<str>>(&'a self, lang: S) -> Vec<&'a str> {
+	pub fn items<S: AsRef<str>>(&self, lang: S) -> Vec<String> {
 		self.emojis
 			.iter()
-			.map(|e| match e.name.get(lang.as_ref()) {
-				Some(name) => name.as_str(),
-				None => "Unknown",
-			}).collect()
+			.map(|e| {
+				let name = match e.name.get(lang.as_ref()) {
+					Some(name) => name.as_str(),
+					None => "Unknown",
+				};
+				format!("{:?}: {}", e.value, name)
+			})
+			.collect()
 	}
 }
