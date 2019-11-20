@@ -29,6 +29,7 @@ struct App {
 	pub index: Index,
 	pub selected: usize,
 	pub query: String,
+	pub query_changed: bool,
 }
 
 impl App {
@@ -37,6 +38,7 @@ impl App {
 			index: Index::from_bytes(include_bytes!("../data/index.bin"))?,
 			selected: 0,
 			query: String::new(),
+			query_changed: false,
 		})
 	}
 }
@@ -59,6 +61,7 @@ fn run() -> Result<(), Error> {
 			prompt += "[Start typing to find an Emoji]";
 		} else {
 			prompt += app.query.as_str();
+			app.index.search(lang, app.query.as_str());
 		};
 
 		let items = app.index.items(lang);
@@ -91,6 +94,8 @@ fn run() -> Result<(), Error> {
 				.render(&mut f, chunks[1]);
 		})?;
 
+		app.query_changed = false;
+
 		match events.next()? {
 			Event::Input(input) => match input {
 				Key::Down => {
@@ -112,9 +117,13 @@ fn run() -> Result<(), Error> {
 				}
 				Key::Backspace => {
 					app.query.truncate(app.query.len() - 1);
+					app.query_changed = true;
+					app.selected = 0;
 				}
 				Key::Char(c) => {
 					app.query += c.to_string().as_str();
+					app.query_changed = true;
+					app.selected = 0;
 				}
 				_ => {}
 			},
