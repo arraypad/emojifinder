@@ -27,7 +27,7 @@ fn main() {
 
 struct App {
 	pub index: Index,
-	pub selected: Option<usize>,
+	pub selected: usize,
 	pub query: String,
 }
 
@@ -35,7 +35,7 @@ impl App {
 	pub fn new() -> Result<App, Error> {
 		Ok(App {
 			index: Index::from_bytes(include_bytes!("../data/index.bin"))?,
-			selected: None,
+			selected: 0,
 			query: String::new(),
 		})
 	}
@@ -63,10 +63,7 @@ fn run() -> Result<(), Error> {
 
 		let items = app.index.items(lang);
 
-		let svg = match app.selected {
-			Some(i) => Some(app.index.emojis[i].svg.clone()),
-			None => None,
-		};
+		let svg = app.index.emojis[app.selected].svg.clone();
 
 		terminal.draw(|mut f| {
 			let chunks = Layout::default()
@@ -75,7 +72,7 @@ fn run() -> Result<(), Error> {
 				.constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
 				.split(f.size());
 
-			Viewer::new(svg)
+			Viewer::new(Some(svg))
 				.color_mode(ColorMode::Rgb)
 				.block(Block::default().borders(Borders::ALL).title("Preview: "))
 				.render(&mut f, chunks[0]);
@@ -87,7 +84,7 @@ fn run() -> Result<(), Error> {
 						.title(prompt.as_str()),
 				)
 				.items(items.as_slice())
-				.select(app.selected)
+				.select(Some(app.selected))
 				.style(Style::default().fg(Color::White))
 				.highlight_style(Style::default().modifier(Modifier::ITALIC))
 				.highlight_symbol(">")
@@ -97,25 +94,17 @@ fn run() -> Result<(), Error> {
 		match events.next()? {
 			Event::Input(input) => match input {
 				Key::Down => {
-					app.selected = if let Some(selected) = app.selected {
-						if selected >= items.len() - 1 {
-							Some(0)
-						} else {
-							Some(selected + 1)
-						}
+					app.selected = if app.selected >= items.len() - 1 {
+						0
 					} else {
-						Some(0)
+						app.selected + 1
 					}
 				}
 				Key::Up => {
-					app.selected = if let Some(selected) = app.selected {
-						if selected > 0 {
-							Some(selected - 1)
-						} else {
-							Some(items.len() - 1)
-						}
+					app.selected = if app.selected > 0 {
+						app.selected - 1
 					} else {
-						Some(0)
+						items.len() - 1
 					}
 				}
 				Key::Esc => {
