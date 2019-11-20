@@ -36,7 +36,9 @@ impl Emoji {
 
 			if let Some(keywords) = self.keywords.get(lang.as_ref()) {
 				for keyword in keywords {
-					self.rank += rank_similarity(slice, keyword);
+					for kw_slice in keyword.split_whitespace() {
+						self.rank += rank_similarity(slice, kw_slice);
+					}
 				}
 			}
 		}
