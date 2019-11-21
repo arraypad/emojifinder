@@ -1,7 +1,7 @@
 use failure::Error;
 use image::{DynamicImage, FilterType, RgbaImage};
 use tui::buffer::Buffer;
-use tui::layout::Rect;
+use tui::layout::{Alignment, Rect};
 use tui::style::{Color, Style};
 use tui::widgets::{Block, Widget};
 
@@ -9,6 +9,11 @@ pub enum ColorMode {
 	Luma,
 	Rgb,
 }
+
+const FILLED_BLOCK_1_OF_4: char = '\u{2591}';
+const FILLED_BLOCK_2_OF_4: char = '\u{2592}';
+const FILLED_BLOCK_3_OF_4: char = '\u{2593}';
+const FILLED_BLOCK_4_OF_4: char = '\u{2588}';
 
 pub struct Viewer<'a> {
 	/// A block to wrap the widget in
@@ -21,6 +26,8 @@ pub struct Viewer<'a> {
 	img_fn: Option<Box<dyn Fn(f32, f32, f32) -> Result<RgbaImage, Error>>>,
 	/// Color mode
 	color_mode: ColorMode,
+	/// Alignment of the image
+	alignment: Alignment,
 }
 
 impl<'a> Viewer<'a> {
@@ -31,6 +38,7 @@ impl<'a> Viewer<'a> {
 			img: Some(img),
 			img_fn: None,
 			color_mode: ColorMode::Luma,
+			alignment: Alignment::Center,
 		}
 	}
 
@@ -43,6 +51,7 @@ impl<'a> Viewer<'a> {
 			img: None,
 			img_fn: Some(Box::new(img_fn)),
 			color_mode: ColorMode::Luma,
+			alignment: Alignment::Center,
 		}
 	}
 
@@ -58,6 +67,11 @@ impl<'a> Viewer<'a> {
 
 	pub fn style(mut self, style: Style) -> Viewer<'a> {
 		self.style = style;
+		self
+	}
+
+	pub fn alignment(mut self, alignment: Alignment) -> Viewer<'a> {
+		self.alignment = alignment;
 		self
 	}
 }
@@ -89,6 +103,7 @@ impl<'a> Widget for Viewer<'a> {
 			},
 		};
 
+		// TODO: add other fixed colours
 		let bg_rgb = match self.style.bg {
 			Color::Black => vec![0f32, 0f32, 0f32],
 			Color::White => vec![1f32, 1f32, 1f32],
@@ -96,7 +111,7 @@ impl<'a> Widget for Viewer<'a> {
 			_ => vec![0f32, 0f32, 0f32],
 		};
 
-		// downsample image in Y axis since
+		// resample to half vertical resolution
 
 		let (orig_w, orig_h) = {
 			let rgba = img.as_rgba8().unwrap();
@@ -107,8 +122,16 @@ impl<'a> Widget for Viewer<'a> {
 			.resize_exact(orig_w, orig_h / 2, FilterType::Lanczos3)
 			.to_rgba();
 
-		let ox = (area.width - img.width() as u16) / 2;
+		// calc offset
+
+		let ox = match self.alignment {
+			Alignment::Center => (area.width - img.width() as u16) / 2,
+			Alignment::Left => 0,
+			Alignment::Right => area.width - img.width() as u16,
+		};
 		let oy = (area.height - img.height() as u16) / 2;
+
+		// draw
 
 		for y in oy..(oy + img.height() as u16) {
 			for x in ox..(ox + img.width() as u16) {
@@ -131,14 +154,14 @@ impl<'a> Widget for Viewer<'a> {
 						}
 
 						cell.set_char(match luma_u8 {
-							1 => '\u{2591}',
-							2 => '\u{2592}',
-							3 => '\u{2593}',
-							_ => '\u{2588}',
+							1 => FILLED_BLOCK_1_OF_4,
+							2 => FILLED_BLOCK_2_OF_4,
+							3 => FILLED_BLOCK_3_OF_4,
+							_ => FILLED_BLOCK_4_OF_4,
 						});
 					}
 					ColorMode::Rgb => {
-						cell.set_char('\u{2588}').set_fg(Color::Rgb(
+						cell.set_char(FILLED_BLOCK_4_OF_4).set_fg(Color::Rgb(
 							(255.0 * r) as u8,
 							(255.0 * g) as u8,
 							(255.0 * b) as u8,
