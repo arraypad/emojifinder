@@ -2,9 +2,9 @@ mod tui;
 
 use failure::Error;
 
-use crate::Config;
-use emojifinder_core::{error::Error as EmojiError, Emoji, Index};
 use self::tui::Tui;
+use crate::Config;
+use emojifinder_core::Index;
 
 pub trait Ui {
 	fn run(&mut self) -> Result<(), Error>;

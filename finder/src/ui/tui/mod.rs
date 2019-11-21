@@ -11,11 +11,11 @@ use tui::style::{Color, Modifier, Style};
 use tui::widgets::{Block, Borders, SelectableList, Widget};
 use tui::Terminal;
 
-use crate::{set_clipboard, Config};
-use emojifinder_core::Index;
 use self::event::{Event, Events};
 use self::viewer::{ColorMode, Viewer};
 use super::Ui;
+use crate::{set_clipboard, Config};
+use emojifinder_core::Index;
 
 pub struct Tui {
 	index: Index,
@@ -38,7 +38,7 @@ impl Tui {
 }
 
 impl Ui for Tui {
-	fn run(&mut self) -> Result<(), Error> {
+	fn run<'a>(&'a mut self) -> Result<(), Error> {
 		let stdout = std::io::stdout().into_raw_mode()?;
 		let stdout = AlternateScreen::from(stdout);
 		let backend = TermionBackend::new(stdout);
@@ -57,8 +57,7 @@ impl Ui for Tui {
 			};
 
 			let items = self.index.items(self.config.lang);
-
-			let svg = self.index.emojis[self.selected].svg.clone();
+			let emoji = self.index.emojis[self.selected].clone();
 
 			let style = if self.flash {
 				self.flash = false;
@@ -74,7 +73,7 @@ impl Ui for Tui {
 					.constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
 					.split(f.size());
 
-				Viewer::new(Some(svg))
+				Viewer::with_img_fn(move |w, h, sf| emoji.get_image(w, h, sf))
 					.color_mode(ColorMode::Rgb)
 					.block(
 						Block::default()

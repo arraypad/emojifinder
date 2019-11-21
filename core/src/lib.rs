@@ -1,13 +1,14 @@
 pub mod error;
 
 use failure::Error;
+use image::RgbaImage;
 use lz4::block::{compress, decompress, CompressionMode};
 use rmp_serde::{encode::write_named as mp_to_writer, from_read as mp_from_reader};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 
-#[derive(Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Emoji {
 	pub value: String,
 	pub name: HashMap<String, String>,
@@ -42,6 +43,26 @@ impl Emoji {
 				}
 			}
 		}
+	}
+
+	pub fn get_image(
+		&self,
+		area_width: f32,
+		area_height: f32,
+		scale_factor: f32,
+	) -> Result<RgbaImage, Error> {
+		let svg = nsvg::parse_str(&self.svg, nsvg::Units::Pixel, 96.0)?;
+
+		let area_aspect = area_width / area_height;
+		let svg_aspect = svg.width() / svg.height();
+
+		let scale = if area_aspect > svg_aspect {
+			area_height / svg.height()
+		} else {
+			area_width / svg.width()
+		};
+
+		Ok(svg.rasterize(scale * scale_factor)?)
 	}
 }
 

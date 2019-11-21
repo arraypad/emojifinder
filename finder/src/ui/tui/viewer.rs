@@ -1,4 +1,5 @@
-use image::{DynamicImage, FilterType};
+use failure::Error;
+use image::{DynamicImage, FilterType, RgbaImage};
 use tui::buffer::Buffer;
 use tui::layout::Rect;
 use tui::style::{Color, Style};
@@ -14,18 +15,33 @@ pub struct Viewer<'a> {
 	block: Option<Block<'a>>,
 	/// Widget style
 	style: Style,
-	/// SVG content
-	svg: Option<String>,
+	/// Image to display
+	img: Option<RgbaImage>,
+	/// Function returning image to display
+	img_fn: Option<Box<dyn Fn(f32, f32, f32) -> Result<RgbaImage, Error>>>,
 	/// Color mode
 	color_mode: ColorMode,
 }
 
 impl<'a> Viewer<'a> {
-	pub fn new(svg: Option<String>) -> Viewer<'a> {
+	pub fn with_img(img: RgbaImage) -> Viewer<'a> {
 		Viewer {
 			block: None,
 			style: Default::default(),
-			svg,
+			img: Some(img),
+			img_fn: None,
+			color_mode: ColorMode::Luma,
+		}
+	}
+
+	pub fn with_img_fn(
+		img_fn: impl Fn(f32, f32, f32) -> Result<RgbaImage, Error> + 'static,
+	) -> Viewer<'a> {
+		Viewer {
+			block: None,
+			style: Default::default(),
+			img: None,
+			img_fn: Some(Box::new(img_fn)),
 			color_mode: ColorMode::Luma,
 		}
 	}
@@ -62,32 +78,32 @@ impl<'a> Widget for Viewer<'a> {
 
 		self.background(area, buf, self.style.bg);
 
-		let bg_color = match self.style.bg {
+		let img = match self.img {
+			Some(ref img) => DynamicImage::ImageRgba8(img.clone()),
+			None => match self.img_fn {
+				Some(ref img_fn) => match img_fn(area.width as f32, area.height as f32, 2.0) {
+					Ok(img) => DynamicImage::ImageRgba8(img.clone()),
+					Err(_) => return,
+				},
+				None => return,
+			},
+		};
+
+		let bg_rgb = match self.style.bg {
 			Color::Black => vec![0f32, 0f32, 0f32],
 			Color::White => vec![1f32, 1f32, 1f32],
 			Color::Rgb(r, g, b) => vec![r as f32 / 255f32, g as f32 / 255f32, b as f32 / 255f32],
 			_ => vec![0f32, 0f32, 0f32],
 		};
 
-		let svg = match self.svg {
-			None => return,
-			Some(ref svg) => nsvg::parse_str(svg, nsvg::Units::Pixel, 96.0).unwrap(),
+		// downsample image in Y axis since
+
+		let (orig_w, orig_h) = {
+			let rgba = img.as_rgba8().unwrap();
+			(rgba.width(), rgba.height())
 		};
 
-		let area_aspect = area.width as f32 / area.height as f32;
-		let svg_aspect = svg.width() / svg.height();
-
-		let scale = if area_aspect > svg_aspect {
-			area.height as f32 / svg.height()
-		} else {
-			area.width as f32 / svg.width()
-		};
-
-		let img = svg.rasterize(scale * 2.0).unwrap();
-		let orig_w = img.width();
-		let orig_h = img.height();
-
-		let img = DynamicImage::ImageRgba8(img)
+		let img = img
 			.resize_exact(orig_w, orig_h / 2, FilterType::Lanczos3)
 			.to_rgba();
 
@@ -98,19 +114,17 @@ impl<'a> Widget for Viewer<'a> {
 			for x in ox..(ox + img.width() as u16) {
 				let p = img.get_pixel((x - ox) as u32, (y - oy) as u32);
 
-				// convert u8 to floats in range 0-1
-				let mut pf: Vec<f32> = p.data.iter().map(|c| *c as f32 / 255.0).collect();
-
 				// composite onto background
-				pf[0] = pf[0] * pf[3] + bg_color[0] * (1f32 - pf[3]);
-				pf[1] = pf[1] * pf[3] + bg_color[1] * (1f32 - pf[3]);
-				pf[2] = pf[2] * pf[3] + bg_color[2] * (1f32 - pf[3]);
+				let a = p.data[3] as f32 / 255.0;
+				let r = p.data[0] as f32 * a / 255.0 + bg_rgb[0] * (1f32 - a);
+				let g = p.data[1] as f32 * a / 255.0 + bg_rgb[1] * (1f32 - a);
+				let b = p.data[2] as f32 * a / 255.0 + bg_rgb[2] * (1f32 - a);
 
 				let cell = buf.get_mut(area.left() + x, area.top() + y);
 
 				match self.color_mode {
 					ColorMode::Luma => {
-						let luma = (pf[0] * 0.3 + pf[1] * 0.59 + pf[2] * 0.11) * pf[3];
+						let luma = r * 0.3 + g * 0.59 + b * 0.11;
 						let luma_u8 = (5.0 * luma) as u8;
 						if luma_u8 == 0 {
 							continue;
@@ -125,9 +139,9 @@ impl<'a> Widget for Viewer<'a> {
 					}
 					ColorMode::Rgb => {
 						cell.set_char('\u{2588}').set_fg(Color::Rgb(
-							(255.0 * pf[0]) as u8,
-							(255.0 * pf[1]) as u8,
-							(255.0 * pf[2]) as u8,
+							(255.0 * r) as u8,
+							(255.0 * g) as u8,
+							(255.0 * b) as u8,
 						));
 					}
 				}
