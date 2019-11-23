@@ -17,6 +17,8 @@ emojifinder-core = { path = "../core" }
 env_logger = "0.7.1"
 failure = "0.1.6"
 image = "0.19.0"
+locale_config = "0.3.0"
 log = "0.4.0"
 tui = "0.5"
+tui-image = { path = "../../tui-image" }
 termion = "1.5"

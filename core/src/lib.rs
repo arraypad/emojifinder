@@ -45,24 +45,19 @@ impl Emoji {
 		}
 	}
 
-	pub fn get_image(
-		&self,
-		area_width: f32,
-		area_height: f32,
-		scale_factor: f32,
-	) -> Result<RgbaImage, Error> {
+	pub fn get_image(&self, area_width: usize, area_height: usize) -> Result<RgbaImage, Error> {
 		let svg = nsvg::parse_str(&self.svg, nsvg::Units::Pixel, 96.0)?;
 
-		let area_aspect = area_width / area_height;
+		let area_aspect = area_width as f32 / area_height as f32;
 		let svg_aspect = svg.width() / svg.height();
 
 		let scale = if area_aspect > svg_aspect {
-			area_height / svg.height()
+			area_height as f32 / svg.height()
 		} else {
-			area_width / svg.width()
+			area_width as f32 / svg.width()
 		};
 
-		Ok(svg.rasterize(scale * scale_factor)?)
+		Ok(svg.rasterize(scale)?)
 	}
 }
 

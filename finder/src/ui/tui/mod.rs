@@ -1,5 +1,4 @@
 mod event;
-mod viewer;
 
 use failure::Error;
 use termion::event::Key;
@@ -10,9 +9,9 @@ use tui::layout::{Constraint, Direction, Layout};
 use tui::style::{Color, Modifier, Style};
 use tui::widgets::{Block, Borders, SelectableList, Widget};
 use tui::Terminal;
+use tui_image::{ColorMode, Image};
 
 use self::event::{Event, Events};
-use self::viewer::{ColorMode, Viewer};
 use super::Ui;
 use crate::{set_clipboard, Config};
 use emojifinder_core::Index;
@@ -73,7 +72,7 @@ impl Ui for Tui {
 					.constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
 					.split(f.size());
 
-				Viewer::with_img_fn(move |w, h, sf| emoji.get_image(w, h, sf))
+				Image::with_img_fn(move |w, h| emoji.get_image(w, h))
 					.color_mode(ColorMode::Rgb)
 					.block(
 						Block::default()
