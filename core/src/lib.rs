@@ -20,10 +20,28 @@ pub struct Emoji {
 	pub rank: f32,
 }
 
+fn get_by_lang<'a, T, S: AsRef<str>>(h: &'a HashMap<String, T>, lang: S) -> Option<&'a T> {
+	let lang = lang.as_ref();
+	if let Some(v) = h.get(lang) {
+		return Some(v);
+	}
+
+	if lang.len() > 3 {
+		// fall back to "parent" lang. E.g. for "en_GB" try "en"
+		let (parent, _) = lang.split_at(2);
+		if let Some(v) = h.get(parent) {
+			return Some(v);
+		}
+	}
+
+	// last resort, English
+	h.get("en")
+}
+
 impl Emoji {
 	pub fn name<'a, S: AsRef<str>>(&'a self, lang: S) -> &'a str {
-		match self.name.get(lang.as_ref()) {
-			Some(name) => name.as_str(),
+		match get_by_lang(&self.name, lang) {
+			Some(v) => v.as_str(),
 			None => "Unknown",
 		}
 	}
@@ -36,7 +54,7 @@ impl Emoji {
 				self.rank += rank_similarity(slice, name);
 			}
 
-			if let Some(keywords) = self.keywords.get(lang.as_ref()) {
+			if let Some(keywords) = get_by_lang(&self.keywords, &lang) {
 				for keyword in keywords {
 					for kw_slice in keyword.split_whitespace() {
 						self.rank += rank_similarity(slice, kw_slice);
@@ -114,7 +132,8 @@ impl Index {
 		let lang = lang.as_ref().to_string();
 		let query = query.as_ref().to_string();
 
-		self.emojis.as_mut_slice()
+		self.emojis
+			.as_mut_slice()
 			.par_iter_mut()
 			.for_each(move |emoji| emoji.update_rank(&lang, &query));
 

@@ -24,7 +24,9 @@ fn main() {
 fn run() -> Result<(), Error> {
 	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
 
-	let config = Config { lang: find_language(&index)? };
+	let config = Config {
+		lang: find_language(&index)?,
+	};
 
 	let mut app = ui::load(index, config)?;
 	Ok(app.run()?)
@@ -48,7 +50,8 @@ pub fn set_clipboard<S: AsRef<str>>(value: S) -> Result<(), Error> {
 }
 
 fn find_language(index: &Index) -> Result<String, Error> {
-	let index_langs: Vec<LanguageRange> = index.locale_codes
+	let index_langs: Vec<LanguageRange> = index
+		.locale_codes
 		.iter()
 		.filter_map(|code| LanguageRange::from_unix(code).ok())
 		.collect();
