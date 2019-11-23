@@ -52,10 +52,10 @@ impl Ui for Tui {
 				prompt += "[Start typing to find an Emoji]";
 			} else {
 				prompt += self.query.as_str();
-				self.index.search(self.config.lang, self.query.as_str());
+				self.index.search(&self.config.lang, self.query.as_str());
 			};
 
-			let items = self.index.items(self.config.lang);
+			let items = self.index.items(&self.config.lang);
 			let emoji = self.index.emojis[self.selected].clone();
 
 			let style = if self.flash {

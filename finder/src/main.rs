@@ -2,11 +2,13 @@ mod ui;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use failure::Error;
+use locale_config::LanguageRange;
 
 use emojifinder_core::{error::Error as EmojiError, Index};
 
+#[derive(Debug)]
 pub struct Config {
-	lang: &'static str,
+	lang: String,
 }
 
 fn main() {
@@ -17,6 +19,15 @@ fn main() {
 			eprintln!("Error: {}", e);
 		}
 	}
+}
+
+fn run() -> Result<(), Error> {
+	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
+
+	let config = Config { lang: find_language(&index)? };
+
+	let mut app = ui::load(index, config)?;
+	Ok(app.run()?)
 }
 
 pub fn set_clipboard<S: AsRef<str>>(value: S) -> Result<(), Error> {
@@ -36,11 +47,18 @@ pub fn set_clipboard<S: AsRef<str>>(value: S) -> Result<(), Error> {
 	Ok(())
 }
 
-fn run() -> Result<(), Error> {
-	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
+fn find_language(index: &Index) -> Result<String, Error> {
+	let index_langs: Vec<LanguageRange> = index.locale_codes
+		.iter()
+		.filter_map(|code| LanguageRange::from_unix(code).ok())
+		.collect();
 
-	let config = Config { lang: "en" };
+	let locale = locale_config::Locale::current();
+	for lang in locale.tags_for("messages") {
+		if index_langs.contains(&lang) {
+			return Ok(format!("{}", lang));
+		}
+	}
 
-	let mut app = ui::load(index, config)?;
-	Ok(app.run()?)
+	Ok("en".to_string())
 }

@@ -24,6 +24,7 @@ fn main() {
 
 fn run() -> Result<(), Error> {
 	let mut map: IndexMap<String, Emoji> = IndexMap::new();
+	let mut locales: Vec<String> = Vec::new();
 
 	// Load Noto SVGs
 
@@ -62,6 +63,7 @@ fn run() -> Result<(), Error> {
 					value: value,
 					name: HashMap::new(),
 					keywords: HashMap::new(),
+					rank: 0.0,
 					svg: std::fs::read_to_string(&path)?,
 				},
 			);
@@ -84,6 +86,7 @@ fn run() -> Result<(), Error> {
 		}
 
 		let (lang, _) = name.split_at(name.len() - 4);
+		locales.push(lang.to_string());
 
 		let anno_str = std::fs::read_to_string(&path)?;
 		let doc = Document::parse(&anno_str)?;
@@ -123,6 +126,7 @@ fn run() -> Result<(), Error> {
 
 	let index = Index {
 		emojis: map.into_iter().map(|(_, v)| v).collect(),
+		locale_codes: locales,
 	};
 
 	index.to_file(OUTPUT_PATH)?;

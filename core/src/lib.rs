@@ -80,20 +80,19 @@ fn rank_similarity<S: AsRef<str>, T: AsRef<str>>(query: S, subject: T) -> f32 {
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Index {
 	pub emojis: Vec<Emoji>,
+	pub locale_codes: Vec<String>,
 }
 
 impl Index {
 	pub fn from_bytes(bytes: &[u8]) -> Result<Index, Error> {
 		let uncompressed: Vec<u8> = decompress(bytes, None)?;
 
-		Ok(Index {
-			emojis: mp_from_reader(&*uncompressed)?,
-		})
+		Ok(mp_from_reader(&*uncompressed)?)
 	}
 
 	pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
 		let mut uncompressed: Vec<u8> = Vec::new();
-		mp_to_writer(&mut uncompressed, &self.emojis)?;
+		mp_to_writer(&mut uncompressed, self)?;
 
 		let compressed = compress(
 			uncompressed.as_slice(),
