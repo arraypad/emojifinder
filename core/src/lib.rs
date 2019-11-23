@@ -3,6 +3,7 @@ pub mod error;
 use failure::Error;
 use image::RgbaImage;
 use lz4::block::{compress, decompress, CompressionMode};
+use rayon::prelude::*;
 use rmp_serde::{encode::write_named as mp_to_writer, from_read as mp_from_reader};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -111,9 +112,12 @@ impl Index {
 	}
 
 	pub fn search<S: AsRef<str>, T: AsRef<str>>(&mut self, lang: S, query: T) {
-		for ref mut emoji in &mut self.emojis {
-			emoji.update_rank(&lang, &query);
-		}
+		let lang = lang.as_ref().to_string();
+		let query = query.as_ref().to_string();
+
+		self.emojis.as_mut_slice()
+			.par_iter_mut()
+			.for_each(move |emoji| emoji.update_rank(&lang, &query));
 
 		self.emojis
 			.sort_by(|a, b| b.rank.partial_cmp(&a.rank).unwrap());
