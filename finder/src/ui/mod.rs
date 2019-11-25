@@ -6,10 +6,6 @@ use self::tui::Tui;
 use crate::Config;
 use emojifinder_core::Index;
 
-pub trait Ui {
-	fn run(&mut self) -> Result<(), Error>;
-}
-
-pub fn load(index: Index, config: Config) -> Result<Box<dyn Ui>, Error> {
-	Ok(Box::new(Tui::new(index, config)))
+pub fn load(index: Index, config: Config) -> Result<Tui, Error> {
+	Ok(Tui::new(index, config)?)
 }
