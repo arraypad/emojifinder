@@ -8,6 +8,7 @@ use rmp_serde::{encode::write_named as mp_to_writer, from_read as mp_from_reader
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::Arc;
 
 #[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Emoji {
@@ -97,7 +98,7 @@ fn rank_similarity<S: AsRef<str>, T: AsRef<str>>(query: S, subject: T) -> f32 {
 
 #[derive(Default, Debug, Serialize, Deserialize)]
 pub struct Index {
-	pub emojis: Vec<Emoji>,
+	pub emojis: Vec<Arc<Emoji>>,
 	pub locale_codes: Vec<String>,
 }
 
@@ -135,7 +136,7 @@ impl Index {
 		self.emojis
 			.as_mut_slice()
 			.par_iter_mut()
-			.for_each(move |emoji| emoji.update_rank(&lang, &query));
+			.for_each(move |ref mut emoji| Arc::make_mut(emoji).update_rank(&lang, &query));
 
 		self.emojis
 			.sort_by(|a, b| b.rank.partial_cmp(&a.rank).unwrap());

@@ -2,6 +2,7 @@ use failure::Error;
 use indexmap::IndexMap;
 use roxmltree::Document;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use emojifinder_core::error::Error as EmojiError;
 use emojifinder_core::{Emoji, Index};
@@ -125,7 +126,7 @@ fn run() -> Result<(), Error> {
 	}
 
 	let index = Index {
-		emojis: map.into_iter().map(|(_, v)| v).collect(),
+		emojis: map.into_iter().map(|(_, v)| Arc::new(v)).collect(),
 		locale_codes: locales,
 	};
 
