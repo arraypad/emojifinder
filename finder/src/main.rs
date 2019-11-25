@@ -5,6 +5,7 @@ use failure::Error;
 use locale_config::LanguageRange;
 
 use emojifinder_core::{error::Error as EmojiError, Index};
+use ui::Ui;
 
 #[derive(Debug)]
 pub struct Config {
@@ -28,7 +29,7 @@ fn run() -> Result<(), Error> {
 		lang: find_language(&index)?,
 	};
 
-	let mut app = ui::load(index, config)?;
+	let mut app = Ui::new(index, config)?;
 	Ok(app.run()?)
 }
 
