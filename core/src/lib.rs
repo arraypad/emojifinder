@@ -125,7 +125,7 @@ impl Index {
 	pub fn items<S: AsRef<str>>(&self, lang: S) -> Vec<String> {
 		self.emojis
 			.iter()
-			.map(|e| format!("{:?}: {}", e.value, e.name(lang.as_ref())))
+			.map(|e| format!("{}: {}", e.value, e.name(lang.as_ref())))
 			.collect()
 	}
 
