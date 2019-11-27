@@ -121,8 +121,7 @@ impl Ui {
 				.color_mode(ColorMode::Rgb)
 				.block(
 					Block::default()
-						.borders(Borders::ALL)
-						.title("Preview: ")
+						.borders(Borders::NONE)
 						.style(style),
 				)
 				.style(style)
@@ -131,7 +130,7 @@ impl Ui {
 			SelectableList::default()
 				.block(
 					Block::default()
-						.borders(Borders::ALL)
+						.borders(Borders::TOP)
 						.title(prompt.as_str())
 						.style(style),
 				)
