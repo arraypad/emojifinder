@@ -86,8 +86,11 @@ impl Ui {
 				},
 				Event::Tick => {
 					// currently only used to reset flash and handle resizing
+					continue;
 				}
 			}
+
+			self.splash = 0;
 		})
 	}
 
