@@ -20,5 +20,5 @@ image = "0.19.0"
 locale_config = "0.3.0"
 log = "0.4.0"
 tui = "0.5"
-tui-image = { path = "../../tui-image" }
+tui-image = { git = "https://github.com/arraypad/tui-image.git" }
 termion = "1.5"
