@@ -23,6 +23,15 @@ fn main() {
 }
 
 fn run() -> Result<(), Error> {
+	println!("
+Emojifinder is open source software, distributed under the MIT license, see:
+	https://github.com/arraypad/emojifinder/blob/master/LICENSE.md
+
+Emojifinder contains:
+* SVG assets from Google's NotoColorEmoji project distributed under the Apache License, Version 2.0. See: https://github.com/arraypad/emojifinder/blob/master/LICENSE.noto-color-emoji
+* Annotations from the Unicode Common Locale Data Repository distributed under the Unicode Terms of Use. See: https://github.com/arraypad/emojifinder/blob/master/LICENSE.unicode
+");
+
 	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
 
 	let config = Config {
