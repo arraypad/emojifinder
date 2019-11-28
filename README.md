@@ -33,7 +33,7 @@ and eventually the frontend:
 
 # License
 
-_Emojifinder_ is open source software, distributed under the MIT license (see [LICENSE.md](LICENSE.md)).
+_Emojifinder_ is open source software, distributed under the [MIT license](LICENSE.md)).
 
 This application contains:
 * SVG assets from the [NotoColorEmoji](https://github.com/googlefonts/noto-emoji) font (copyright Google Inc.) distributed under the [Apache License, Version 2.0](https://github.com/googlefonts/noto-emoji/blob/master/LICENSE).
