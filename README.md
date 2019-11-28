@@ -2,11 +2,11 @@
 
 The fuzzy searching terminal based Emoji finder you've always needed.
 
-![example](example.gif)
-
 * [Installation](#Installation)
 * [Building](#Building)
 * [License](#License)
+
+![example](example.gif)
 
 # Installation
 
