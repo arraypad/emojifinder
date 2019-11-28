@@ -35,6 +35,6 @@ and eventually the frontend:
 
 _Emojifinder_ is open source software, distributed under the MIT license (see [LICENSE.md](LICENSE.md)).
 
-The _emojifinder_ binary contains:
- * SVG assets from Google's [NotoColorEmoji](https://github.com/googlefonts/noto-emoji) project distributed under the Apache License, Version 2.0 (see [LICENSE.noto-color-emoji](LICENSE.noto-color-emoji)).
- * Annotations from the [Unicode Common Locale Data Repository](https://github.com/unicode-org/cldr) distributed under the Unicode Terms of Use (see [LICENSE.unicode](LICENSE.unicode)).
+This application contains:
+* SVG assets from the [NotoColorEmoji](https://github.com/googlefonts/noto-emoji) font (copyright Google Inc.) distributed under the [Apache License, Version 2.0](https://github.com/googlefonts/noto-emoji/blob/master/LICENSE).
+* Annotations from the [Unicode Common Locale Data Repository](https://github.com/unicode-org/cldr) (copyright Unicode, Inc) distributed under the [Unicode Terms of Use](https://www.unicode.org/copyright.html).

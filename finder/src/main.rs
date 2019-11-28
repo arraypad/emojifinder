@@ -7,6 +7,13 @@ use locale_config::LanguageRange;
 use emojifinder_core::{error::Error as EmojiError, Index};
 use ui::Ui;
 
+pub const NOTICE: &'static str = "Emojifinder
+Copyright 2019 Bobweb Ltd. https://github.com/arraypad/emojifinder
+
+This application contains:
+* SVG assets from the NotoColorEmoji font (copyright Google Inc.) distributed under the Apache License, Version 2.0. See: https://github.com/googlefonts/noto-emoji/blob/master/LICENSE
+* Annotations from the Unicode Common Locale Data Repository (copyright Unicode, Inc) distributed under the Unicode Terms of Use. See: https://www.unicode.org/copyright.html";
+
 #[derive(Debug)]
 pub struct Config {
 	lang: String,
@@ -23,15 +30,6 @@ fn main() {
 }
 
 fn run() -> Result<(), Error> {
-	println!("
-Emojifinder is open source software, distributed under the MIT license, see:
-	https://github.com/arraypad/emojifinder/blob/master/LICENSE.md
-
-Emojifinder contains:
-* SVG assets from Google's NotoColorEmoji project distributed under the Apache License, Version 2.0. See: https://github.com/arraypad/emojifinder/blob/master/LICENSE.noto-color-emoji
-* Annotations from the Unicode Common Locale Data Repository distributed under the Unicode Terms of Use. See: https://github.com/arraypad/emojifinder/blob/master/LICENSE.unicode
-");
-
 	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
 
 	let config = Config {
