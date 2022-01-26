@@ -31,6 +31,10 @@ and eventually the frontend:
 
 `cargo run --release`
 
+![Structure](https://images.repography.com/20739240/arraypad/emojifinder/structure/6b2ffb4be222704e076c13958eb8192b.svg)
+
+![Top Contributors](https://images.repography.com/20739240/arraypad/emojifinder/top-contributors/6b2ffb4be222704e076c13958eb8192b.svg)
+
 # License
 
 _Emojifinder_ is open source software, distributed under the [MIT license](LICENSE.md).
