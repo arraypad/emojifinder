@@ -54,22 +54,18 @@ impl Events {
 			thread::spawn(move || {
 				let stdin = io::stdin();
 				for evt in stdin.keys() {
-					match evt {
-						Ok(key) => {
-							if let Err(_) = tx.send(Event::Input(key)) {
-								return;
-							}
-							if key == config.exit_key {
-								return;
-							}
+					if let Ok(key) = evt {
+						if let Err(_) = tx.send(Event::Input(key)) {
+							return;
 						}
-						Err(_) => {}
+						if key == config.exit_key {
+							return;
+						}
 					}
 				}
 			})
 		};
 		let tick_handle = {
-			let tx = tx.clone();
 			thread::spawn(move || {
 				let tx = tx.clone();
 				loop {

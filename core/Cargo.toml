@@ -2,16 +2,16 @@
 name = "emojifinder-core"
 version = "0.1.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
-failure = "0.1.6"
+failure = "0.1.8"
 image = "0.19.0"
-lz4 = "1.23.1"
+lz4 = "1.23.2"
 nsvg = "0.5.1"
-rayon = "1.2.0"
-rmp-serde = "0.14.0"
+rayon = "1.5.1"
+rmp-serde = "1.0.0"
 serde = { version = "1.0.102", features = ["rc"] }
-serde_derive = "1.0.102"
+serde_derive = "1.0.136"
 trigram = "0.4.4"

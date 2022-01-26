@@ -2,15 +2,15 @@
 name = "emojifinder-builder"
 version = "0.1.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
 emojifinder-core = { path = "../core" }
-env_logger = "0.7.1"
+env_logger = "0.9.0"
 exitcode = "1.1.2"
-failure = "0.1.6"
-indexmap = "1.3.0"
-log = "0.4.0"
-roxmltree = "0.7.3"
-serde = "1.0.102"
+failure = "0.1.8"
+indexmap = "1.8.0"
+log = "0.4.14"
+roxmltree = "0.14.1"
+serde = "1.0.136"

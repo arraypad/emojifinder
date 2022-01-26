@@ -7,8 +7,8 @@ use locale_config::LanguageRange;
 use emojifinder_core::{error::Error as EmojiError, Index};
 use ui::Ui;
 
-pub const NOTICE: &'static str = "Emojifinder
-Copyright 2019 Bobweb Ltd. https://github.com/arraypad/emojifinder
+pub const NOTICE: &str = "Emojifinder
+Copyright 2022 Bobweb Ltd. https://github.com/arraypad/emojifinder
 
 This application contains:
 * SVG assets from the NotoColorEmoji font (copyright Google Inc.) distributed under the Apache License, Version 2.0. See: https://github.com/googlefonts/noto-emoji/blob/master/LICENSE
@@ -37,7 +37,7 @@ fn run() -> Result<(), Error> {
 	};
 
 	let mut app = Ui::new(index, config)?;
-	Ok(app.run()?)
+	app.run()
 }
 
 pub fn set_clipboard<S: AsRef<str>>(value: S) -> Result<(), Error> {
