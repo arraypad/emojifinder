@@ -70,7 +70,9 @@ impl Ui {
 						break;
 					}
 					Key::Backspace => {
-						self.query.truncate(self.query.len() - 1);
+						if self.query.len() > 0 {
+							self.query.truncate(self.query.len() - 1);
+						}
 						self.selected = 0;
 					}
 					Key::Char(c) => {
