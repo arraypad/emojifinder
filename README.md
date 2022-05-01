@@ -31,9 +31,10 @@ and eventually the frontend:
 
 `cargo run --release`
 
-![Structure](https://images.repography.com/20739240/arraypad/emojifinder/structure/6b2ffb4be222704e076c13958eb8192b.svg)
+## [![Repography logo](https://images.repography.com/logo.svg)](https://repography.com) / Recent activity [![Time period](https://images.repography.com/20739240/arraypad/emojifinder/recent-activity/6b2ffb4be222704e076c13958eb8192b_badge.svg)](https://repography.com)
+[![Timeline graph](https://images.repography.com/20739240/arraypad/emojifinder/recent-activity/6b2ffb4be222704e076c13958eb8192b_timeline.svg)](https://github.com/arraypad/emojifinder/commits)
+[![Trending topics](https://images.repography.com/20739240/arraypad/emojifinder/recent-activity/6b2ffb4be222704e076c13958eb8192b_words.svg)](https://github.com/arraypad/emojifinder/commits)
 
-![Top Contributors](https://images.repography.com/20739240/arraypad/emojifinder/top-contributors/6b2ffb4be222704e076c13958eb8192b.svg)
 
 # License
 
