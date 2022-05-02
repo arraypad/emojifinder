@@ -2,7 +2,7 @@
 name = "emojifinder-core"
 description = "Common functionality for emojifinder"
 version = "0.2.0"
-authors = ["Arpad Ray <arraypad@gmail.com>"]
+authors = ["Arpad Ray <hello@arpad.pizza>"]
 edition = "2021"
 license = "MIT"
 
