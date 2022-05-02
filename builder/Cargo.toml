@@ -1,5 +1,6 @@
 [package]
 name = "emojifinder-builder"
+description = "Builds the index used by emojifinder"
 version = "0.2.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2021"
