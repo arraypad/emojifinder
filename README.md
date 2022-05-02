@@ -1,5 +1,8 @@
 # Emojifinder
 
+![Crates.io](https://img.shields.io/crates/v/emojifinder)
+[![Continuous integration](https://github.com/arraypad/emojifinder/workflows/Continuous%20integration/badge.svg)](https://github.com/arraypad/emojifinder/actions/workflows/ci.yml)
+
 The fuzzy searching terminal based Emoji finder you've always needed.
 
 * [Installation](#Installation)
