@@ -5,6 +5,9 @@ version = "0.2.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2021"
 license = "MIT"
+include = [
+  "src/main.rs",
+]
 
 [dependencies]
 emojifinder-core = { path = "../core", version = "0.2.0" }
