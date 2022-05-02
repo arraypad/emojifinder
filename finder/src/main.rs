@@ -58,6 +58,7 @@ pub fn set_clipboard<S: AsRef<str>>(value: S) -> Result<(), Error> {
 }
 
 fn find_language(index: &Index) -> Result<String, Error> {
+	#[allow(clippy::needless_collect)]
 	let index_langs: Vec<LanguageRange> = index
 		.locale_codes
 		.iter()
