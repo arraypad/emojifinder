@@ -51,7 +51,7 @@ impl Ui {
 	}
 
 	pub fn run(&mut self) -> Result<(), Error> {
-		Ok(loop {
+		loop {
 			self.draw()?;
 
 			match self.events.next()? {
@@ -70,7 +70,7 @@ impl Ui {
 						break;
 					}
 					Key::Backspace => {
-						if self.query.len() > 0 {
+						if !self.query.is_empty() {
 							self.query.truncate(self.query.len() - 1);
 						}
 						self.selected = 0;
@@ -93,7 +93,9 @@ impl Ui {
 			}
 
 			self.splash = 0;
-		})
+		}
+
+		Ok(())
 	}
 
 	fn draw(&mut self) -> Result<(), Error> {
@@ -140,7 +142,7 @@ impl Ui {
 			let top_block = Block::default().borders(Borders::NONE).style(style);
 
 			if show_splash {
-				let v_offset = (chunks[0].height - NOTICE.matches("\n").count() as u16) / 2;
+				let v_offset = (chunks[0].height - NOTICE.matches('\n').count() as u16) / 2;
 				if v_offset > 0 {
 					chunks[0].y += v_offset;
 				}

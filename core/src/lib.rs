@@ -74,16 +74,14 @@ impl Emoji {
 		let fit = usvg::FitTo::Size(area_width as u32, area_height as u32);
 		let fit_size = fit
 			.fit_to(tree.svg_node().size.to_screen_size())
-			.ok_or(failure::err_msg("fit failure"))?;
+			.ok_or_else(|| failure::err_msg("fit failure"))?;
 		let mut pixmap = tiny_skia::Pixmap::new(fit_size.width(), fit_size.height())
-			.ok_or(failure::err_msg("zero sized image"))?;
+			.ok_or_else(|| failure::err_msg("zero sized image"))?;
 		resvg::render(&tree, fit, tiny_skia::Transform::default(), pixmap.as_mut())
-			.ok_or(failure::err_msg("failed to fit svg to size"))?;
+			.ok_or_else(|| failure::err_msg("failed to fit svg to size"))?;
 		let buf = pixmap.data().to_vec();
-		Ok(
-			image::ImageBuffer::from_raw(pixmap.width(), pixmap.height(), buf)
-				.ok_or(failure::err_msg("buffer not large enough"))?,
-		)
+		image::ImageBuffer::from_raw(pixmap.width(), pixmap.height(), buf)
+			.ok_or_else(|| failure::err_msg("buffer not large enough"))
 	}
 }
 
