@@ -3,7 +3,7 @@ name = "emojifinder"
 description = "The terminal based Emoji finder you've always needed"
 homepage = "https://github.com/arraypad/emojifinder"
 repository = "https://github.com/arraypad/emojifinder"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2018"
 readme = "README.md"
@@ -16,10 +16,10 @@ clipboard = "0.5.0"
 emojifinder-core = { path = "../core", version = "0.1.0" }
 env_logger = "0.9.0"
 failure = "0.1.8"
-image = "0.23.14"
+image = "0.24.2"
 lazy_static = "1.4.0"
 locale_config = "0.3.0"
-log = "0.4.14"
-tui = "0.5"
-tui-image = { git = "https://github.com/arraypad/tui-image.git", version = "0.1.0" }
+log = "0.4.16"
+tui = { version = "0.18", default-features = false, features = ['termion'] }
+tui-image = { git = "https://github.com/arraypad/tui-image.git", version = "0.2.0" }
 termion = "1.5.6"

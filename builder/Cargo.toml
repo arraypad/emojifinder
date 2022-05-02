@@ -1,6 +1,6 @@
 [package]
 name = "emojifinder-builder"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2021"
 license = "MIT"

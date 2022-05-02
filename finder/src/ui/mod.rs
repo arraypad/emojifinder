@@ -7,7 +7,7 @@ use termion::screen::AlternateScreen;
 use tui::backend::TermionBackend;
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Color, Modifier, Style};
-use tui::widgets::{Block, Borders, Paragraph, SelectableList, Text, Widget};
+use tui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap};
 use tui::Terminal;
 use tui_image::{ColorMode, Image};
 
@@ -108,7 +108,12 @@ impl Ui {
 			}
 		};
 
-		let items = self.index.items(&self.config.lang);
+		let items: Vec<ListItem> = self
+			.index
+			.items(&self.config.lang)
+			.iter()
+			.map(|item| ListItem::new(item.clone()))
+			.collect();
 		let emoji = self.index.emojis[self.selected].clone();
 		let selected = self.selected;
 		let show_splash = if self.splash > 0 {
@@ -125,12 +130,7 @@ impl Ui {
 			Style::default().bg(Color::Black).fg(Color::White)
 		};
 
-		lazy_static::lazy_static! {
-			static ref NOTICE_TEXT: Vec<Text<'static>> = NOTICE.lines()
-				.map(|l| Text::raw(format!("{}\n", l))).collect();
-		}
-
-		Ok(self.terminal.draw(|mut f| {
+		self.terminal.draw(|f| {
 			let mut chunks = Layout::default()
 				.direction(Direction::Vertical)
 				.margin(1)
@@ -140,38 +140,41 @@ impl Ui {
 			let top_block = Block::default().borders(Borders::NONE).style(style);
 
 			if show_splash {
-				let v_offset = (chunks[0].height - NOTICE_TEXT.iter().len() as u16) / 2;
+				let v_offset = (chunks[0].height - NOTICE.matches("\n").count() as u16) / 2;
 				if v_offset > 0 {
 					chunks[0].y += v_offset;
 				}
 
-				Paragraph::new(NOTICE_TEXT.iter())
+				let para = Paragraph::new(NOTICE)
 					.block(top_block)
 					.style(style)
 					.alignment(Alignment::Center)
-					.wrap(true)
-					.render(&mut f, chunks[0]);
+					.wrap(Wrap { trim: true });
+				f.render_widget(para, chunks[0])
 			} else {
-				Image::with_img_fn(move |w, h| emoji.get_image(w, h))
+				let img = Image::with_img_fn(move |w, h| emoji.get_image(w, h))
 					.color_mode(ColorMode::Rgb)
 					.block(top_block)
-					.style(style)
-					.render(&mut f, chunks[0]);
+					.style(style);
+				f.render_widget(img, chunks[0])
 			}
 
-			SelectableList::default()
+			let mut list_state = ListState::default();
+			list_state.select(Some(selected));
+
+			let list = List::new(items)
 				.block(
 					Block::default()
 						.borders(Borders::TOP)
 						.title(prompt.as_str())
 						.style(style),
 				)
-				.items(items.as_slice())
-				.select(Some(selected))
 				.style(style)
-				.highlight_style(Style::default().modifier(Modifier::ITALIC))
-				.highlight_symbol(">")
-				.render(&mut f, chunks[1]);
-		})?)
+				.highlight_style(Style::default().add_modifier(Modifier::ITALIC))
+				.highlight_symbol(">");
+			f.render_stateful_widget(list, chunks[1], &mut list_state);
+		})?;
+
+		Ok(())
 	}
 }

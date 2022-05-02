@@ -1,7 +1,6 @@
 pub mod error;
 
 use failure::Error;
-use image::RgbaImage;
 use lz4::block::{compress, decompress, CompressionMode};
 use rayon::prelude::*;
 use rmp_serde::{encode::write_named as mp_to_writer, from_read as mp_from_reader};
@@ -65,19 +64,26 @@ impl Emoji {
 		}
 	}
 
-	pub fn get_image(&self, area_width: usize, area_height: usize) -> Result<RgbaImage, Error> {
-		let svg = nsvg::parse_str(&self.svg, nsvg::Units::Pixel, 96.0)?;
-
-		let area_aspect = area_width as f32 / area_height as f32;
-		let svg_aspect = svg.width() / svg.height();
-
-		let scale = if area_aspect > svg_aspect {
-			area_height as f32 / svg.height()
-		} else {
-			area_width as f32 / svg.width()
-		};
-
-		Ok(svg.rasterize(scale)?)
+	pub fn get_image(
+		&self,
+		area_width: usize,
+		area_height: usize,
+	) -> Result<image::RgbaImage, Error> {
+		let opts = usvg::Options::default();
+		let tree = usvg::Tree::from_str(&self.svg, &opts.to_ref())?;
+		let fit = usvg::FitTo::Size(area_width as u32, area_height as u32);
+		let fit_size = fit
+			.fit_to(tree.svg_node().size.to_screen_size())
+			.ok_or(failure::err_msg("fit failure"))?;
+		let mut pixmap = tiny_skia::Pixmap::new(fit_size.width(), fit_size.height())
+			.ok_or(failure::err_msg("zero sized image"))?;
+		resvg::render(&tree, fit, tiny_skia::Transform::default(), pixmap.as_mut())
+			.ok_or(failure::err_msg("failed to fit svg to size"))?;
+		let buf = pixmap.data().to_vec();
+		Ok(
+			image::ImageBuffer::from_raw(pixmap.width(), pixmap.height(), buf)
+				.ok_or(failure::err_msg("buffer not large enough"))?,
+		)
 	}
 }
 

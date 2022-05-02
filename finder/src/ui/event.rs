@@ -59,7 +59,7 @@ impl Events {
 							return;
 						}
 						if key == config.exit_key {
-							return;
+							std::process::exit(0);
 						}
 					}
 				}
