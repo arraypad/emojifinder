@@ -7,10 +7,10 @@ use std::sync::Arc;
 use emojifinder_core::error::Error as EmojiError;
 use emojifinder_core::{Emoji, Index};
 
-const ANNO_DIR: &'static str = "builder/data/cldr/common/annotations";
-const SVG_DIR: &'static str = "builder/data/noto-emoji/svg";
-const SVG_PREFIX: &'static str = "emoji_u";
-const OUTPUT_PATH: &'static str = "finder/src/index.bin";
+const ANNO_DIR: &str = "builder/data/cldr/common/annotations";
+const SVG_DIR: &str = "builder/data/noto-emoji/svg";
+const SVG_PREFIX: &str = "emoji_u";
+const OUTPUT_PATH: &str = "finder/src/index.bin";
 
 fn main() {
 	env_logger::init();
@@ -42,7 +42,7 @@ fn run() -> Result<(), Error> {
 
 		let (_, code_points_str) = stem.split_at(SVG_PREFIX.len());
 		let code_points: Result<Vec<u32>, _> = code_points_str
-			.split("_")
+			.split('_')
 			.map(|p| u32::from_str_radix(p, 16))
 			.collect();
 
@@ -61,7 +61,7 @@ fn run() -> Result<(), Error> {
 			map.insert(
 				value.clone(),
 				Emoji {
-					value: value,
+					value,
 					name: HashMap::new(),
 					keywords: HashMap::new(),
 					rank: 0.0,
@@ -109,10 +109,7 @@ fn run() -> Result<(), Error> {
 				None => continue,
 			};
 
-			let value = match anno.text() {
-				Some(text) => text,
-				None => "",
-			};
+			let value = anno.text().unwrap_or("");
 
 			if anno.attribute("type") == Some("tts") {
 				emoji.name.insert(lang.to_string(), value.to_string());

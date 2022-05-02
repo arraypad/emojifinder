@@ -20,7 +20,7 @@ pub struct Emoji {
 	pub rank: f32,
 }
 
-fn get_by_lang<'a, T, S: AsRef<str>>(h: &'a HashMap<String, T>, lang: S) -> Option<&'a T> {
+fn get_by_lang<T, S: AsRef<str>>(h: &HashMap<String, T>, lang: S) -> Option<&T> {
 	let lang = lang.as_ref();
 	if let Some(v) = h.get(lang) {
 		return Some(v);
@@ -39,7 +39,7 @@ fn get_by_lang<'a, T, S: AsRef<str>>(h: &'a HashMap<String, T>, lang: S) -> Opti
 }
 
 impl Emoji {
-	pub fn name<'a, S: AsRef<str>>(&'a self, lang: S) -> &'a str {
+	pub fn name<S: AsRef<str>>(&self, lang: S) -> &str {
 		match get_by_lang(&self.name, lang) {
 			Some(v) => v.as_str(),
 			None => "Unknown",
