@@ -30,7 +30,7 @@ fn main() {
 }
 
 fn run() -> Result<(), Error> {
-	let index = Index::from_bytes(include_bytes!("../data/index.bin"))?;
+	let index = Index::from_bytes(include_bytes!("index.bin"))?;
 
 	let config = Config {
 		lang: find_language(&index)?,

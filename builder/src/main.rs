@@ -10,7 +10,7 @@ use emojifinder_core::{Emoji, Index};
 const ANNO_DIR: &'static str = "builder/data/cldr/common/annotations";
 const SVG_DIR: &'static str = "builder/data/noto-emoji/svg";
 const SVG_PREFIX: &'static str = "emoji_u";
-const OUTPUT_PATH: &'static str = "finder/data/index.bin";
+const OUTPUT_PATH: &'static str = "finder/src/index.bin";
 
 fn main() {
 	env_logger::init();

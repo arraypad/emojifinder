@@ -6,10 +6,15 @@ repository = "https://github.com/arraypad/emojifinder"
 version = "0.2.0"
 authors = ["Arpad Ray <arraypad@gmail.com>"]
 edition = "2018"
-readme = "README.md"
 license = "MIT"
-keywords = ["terminal", "cli", "emoji", "search", "find", "fuzzy"]
+keywords = ["terminal", "cli", "emoji", "search", "fuzzy"]
 categories = ["command-line-utilities"]
+include = [
+  "src/index.bin",
+  "src/main.rs",
+  "src/ui/mod.rs",
+  "src/ui/event.rs"
+]
 
 [dependencies]
 clipboard = "0.5.0"
