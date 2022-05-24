@@ -29,14 +29,12 @@ pub struct Events {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Config {
-	pub exit_key: Key,
 	pub tick_rate: Duration,
 }
 
 impl Default for Config {
 	fn default() -> Config {
 		Config {
-			exit_key: Key::Char('q'),
 			tick_rate: Duration::from_millis(250),
 		}
 	}
@@ -56,9 +54,6 @@ impl Events {
 				for key in stdin.keys().flatten() {
 					if tx.send(Event::Input(key)).is_err() {
 						return;
-					}
-					if key == config.exit_key {
-						std::process::exit(0);
 					}
 				}
 			})
